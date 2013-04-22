@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sandbox4</title>
+    <link rel="stylesheet" href="/media/css/main.css">
+    <link rel="stylesheet" href="/media/css/slick.css" type="text/css">
+    <link rel="stylesheet" href="/media/css/jquery-ui-1.css" type="text/css">
+    <link rel="stylesheet" href="/media/css/examples.css" type="text/css">
+
+    <script src="/media/js/jquery-1.7.min.js"></script>
+    <script src="/media/js/json2.js"></script>
+    <script src="/media/js/jquery-ui-1.8.16.custom.min.js"></script>
+    <script src="/media/js/jquery.event.drag-2.0.min.js"></script>
+    <script src="/media/js/slick.core.js"></script>
+    <script src="/media/js/slick.cellrangedecorator.js"></script>
+    <script src="/media/js/slick.cellrangeselector.js"></script>
+    <script src="/media/js/slick.cellselectionmodel.js"></script>
+    <script src="/media/js/slick.formatters.js"></script>
+    <script src="/media/js/slick.editors.js"></script>
+    <script src="/media/js/slick.grid.js"></script>
+    <script>
+        $(document).ready(function() {
+            jQuery.support.cors = true;
+            var host = "http://127.0.0.1:8000";
+            var tableName;
+            var grid;
+
+            function commitRow(row) {
+                var validRow = {};
+                for (var f in row) {
+                    if (row[f] == "None") continue;
+
+                    validRow[f] = row[f];
+                }
+
+                $.ajax({
+                    url: "edit_row",
+                    data: {"p_table_name": tableName, p_edit_row: JSON.stringify(validRow)},
+                    type: 'POST',
+                    crossDomain: true,
+                    dataType: "json",
+                    success: function (response){
+                        refreshData();
+                    }
+                });
+            }
+
+            function refreshData() {
+                if (tableName == "") return;
+
+                if (grid)
+                    grid.destroy();
+
+                $.ajax({
+                    url: "get_details",
+                    data: {"p_name": tableName},
+                    type: 'POST',
+                    crossDomain: true,
+                    dataType: "json",
+                    success: function (response){
+
+                        var data = response.store;
+                        var columns = [];
+
+                        for (var i = 0; i < response.cols.length; i++) {
+                            var row = response.cols[i];
+                            if (row["name"] == "id") continue;
+
+                            var editor = Slick.Editors.Text;
+                            if (row["type"] == "int")
+                                editor = Slick.Editors.Integer;
+                            else if (row["type"] == "date")
+                                editor = Slick.Editors.Date;
+
+                            columns.push({id: row["name"], name: row["title"], field: row["name"], width: 120, editor: editor});
+                        }
+
+                        var options = {
+                            editable: true,
+                            enableAddRow: true,
+                            enableCellNavigation: true,
+                            asyncEditorLoading: false,
+                            autoEdit: false
+                        };
+
+                        grid = new Slick.Grid("#myGrid", data, columns, options);
+
+                        grid.setSelectionModel(new Slick.CellSelectionModel());
+
+                        grid.onAddNewRow.subscribe(function (e, args) {
+                            commitRow(args.item);
+                            var item = args.item;
+                            grid.invalidateRow(data.length);
+                            data.push(item);
+                            grid.updateRowCount();
+                            grid.render();
+                        });
+                        grid.onCellChange.subscribe(function (e, args) {
+                            commitRow(args.item);
+                        });
+                    },
+                    error: function (){
+
+                    }
+                });
+            }
+
+            $(".test-table-name").click(function (){
+                tableName = $(this).text();
+                refreshData();
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <table>
+    <tr>
+        <td class="test-table-list">
+            {% for name in tables %}
+                <ul>
+                    <li class='test-table-name'>{{ name }}</li>
+                </ul>
+            {% endfor %}
+        </td>
+        <td>
+            <div style="width:600px;">
+                <div id="myGrid" style="width:100%;height:350px;"></div>
+            </div>
+            <div style="color: red; padding-top: 10px;">* Двойной клик приводит к редактированию</div>
+        </td>
+    </tr>
+    </table>
+</body>
+</html>

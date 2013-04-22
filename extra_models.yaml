@@ -1,0 +1,21 @@
+﻿table1:
+   title: Table 1
+   fields:
+       - {id: field1, title: Title 1, type: char}
+       - {id: field2, title: Title 2, type: int}
+       - {id: field3, title: Title 3, type: date}
+
+table2:
+   title: Table 2
+   fields:
+       - {id: field1, title: Title 1, type: char}
+
+table3:
+   title: Table 3
+   fields:
+       - {id: field1, title: Title 1, type: char}
+       - {id: field2, title: Title 2, type: int}
+       - {id: field3, title: Title 3, type: date}
+       - {id: field4, title: Title 4, type: char}
+       - {id: field5, title: Title 5, type: int}
+       - {id: field6, title: Title 6, type: date}

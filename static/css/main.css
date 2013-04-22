@@ -1,0 +1,15 @@
+.test-table-list {
+    width: 200px;
+    vertical-align: top;
+}
+
+.test-table-name {
+    color: black;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.test-table-name:hover {
+    color: green;
+    text-decoration: underline;
+}
