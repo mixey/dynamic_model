@@ -105,10 +105,10 @@
                 });
             }
 
-            $(".test-table-name").click(function (){
-                tableName = $(this).text();
+            $(".test-table-name").click(function (event){
+                tableName = event.target.id;
                 refreshData();
-            });
+            })
         });
     </script>
 </head>
@@ -117,9 +117,9 @@
     <table>
     <tr>
         <td class="test-table-list">
-            {% for name in tables %}
+            {% for t in tables %}
                 <ul>
-                    <li class='test-table-name'>{{ name }}</li>
+                    <li id="{{ t.name }}" class="test-table-name">{{ t.title }}</li>
                 </ul>
             {% endfor %}
         </td>
